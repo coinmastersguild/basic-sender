@@ -7,7 +7,8 @@ import { KeepKeyWalletProvider } from './contexts/WalletProvider';
 import { extendTheme } from "@chakra-ui/react";
 import HomePage from '.';
 import '@fontsource/share-tech-mono';
-
+import { PricesProvider } from './contexts/PricesContext';
+import { UserConnectionProvider } from './contexts/UserConnectionContext';
 export default function Home() {
   const [selectedChains, setSelectedChains] = useState<string[]>([]);
 
@@ -37,12 +38,17 @@ export default function Home() {
 
   return (
     <ChakraProvider theme={theme}>
-      <KeepKeyWalletProvider selectedChains={selectedChains}>
-        <Header />
-        <HomePage />
-        <Footer />
+      <UserConnectionProvider>
+        <KeepKeyWalletProvider selectedChains={selectedChains}>
 
-      </KeepKeyWalletProvider>
+          <PricesProvider>
+            <Header />
+            <HomePage />
+            <Footer />
+          </PricesProvider>
+
+        </KeepKeyWalletProvider>
+      </UserConnectionProvider>
     </ChakraProvider>
   );
 };

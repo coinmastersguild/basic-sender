@@ -6,7 +6,6 @@ import {
   MenuList,
   MenuItemOption,
   MenuOptionGroup,
-  Spinner,
   Box,
   HStack,
   Avatar,
@@ -17,28 +16,24 @@ import { useKeepKeyWallet } from '../contexts/WalletProvider';
 import { FaArrowDown } from 'react-icons/fa6';
 //@ts-ignore
 import { COIN_MAP_LONG } from '@pioneer-platform/pioneer-coins';
+import { useUserConnection } from '../contexts/UserConnectionContext';
 
-const availableChains = ['BTC', 'BCH', 'ETH', 'OSMO', 'GAIA', 'MAYA', 'THOR', 'BNB', 'LTC', 'DASH', 'DOGE', 'XRP'];
+const availableChains = ['BTC', 'ETH', 'OSMO', 'GAIA', 'MAYA', 'THOR', 'LTC', 'DASH', 'DOGE', 'XRP', 'ZEC', 'OP'];
 
 export default function ConnectKK() {
   const { connectWallet, disconnectWallet, keepkeyInstance } = useKeepKeyWallet();
   const [isConnecting, setIsConnecting] = useState(false);
   const [selectedChains, setSelectedChains] = useState(['ETH']);
+  const { isConnected, setIsConnected } = useUserConnection();
 
   const handleChainChange = (values: any) => {
     setSelectedChains(values);
   };
 
-  // Determine the src for the first selected chain's logo
-  const firstSelectedChainLogo = selectedChains.length > 0
-    ? `https://pioneers.dev/coins/${COIN_MAP_LONG[selectedChains[0]]}.png`
-    : '';
-
   return (
     <Box display="flex" flexDirection="column" alignItems="center" gap={4}>
-      {keepkeyInstance ? (
+      {isConnected ? (
         selectedChains.length !== 0 ? (
-
           <HStack>
             {selectedChains.map(chain => (
               <Avatar key={chain} size="xs" src={`https://pioneers.dev/coins/${COIN_MAP_LONG[chain]}.png`} mr={2} />
@@ -47,6 +42,7 @@ export default function ConnectKK() {
               colorScheme="red"
               onClick={async () => {
                 await disconnectWallet();
+                setIsConnected(false);
               }}
             >
               Disconnect
@@ -56,7 +52,7 @@ export default function ConnectKK() {
       ) : (
         <HStack>
           <Menu closeOnSelect={false}>
-            <MenuButton mt={"10px"} _hover={{ bg: "transparente" }} bg={"darkgrey"} border={"1px solid white"} as={Button} rightIcon={<FaArrowDown color='white' />} isLoading={isConnecting}>
+            <MenuButton mt={"10px"} _hover={{ bg: "transparent" }} bg={"darkgrey"} border={"1px solid white"} as={Button} rightIcon={<FaArrowDown color='white' />} isLoading={isConnecting}>
               {selectedChains.length > 0 ? (
                 <HStack>
                   {selectedChains.map(chain => (
@@ -77,8 +73,6 @@ export default function ConnectKK() {
                 ))}
               </MenuOptionGroup>
             </MenuList>
-
-
             <Button
               mt={2}
               colorScheme="blue"
@@ -87,6 +81,7 @@ export default function ConnectKK() {
                 setIsConnecting(true);
                 try {
                   await connectWallet(selectedChains);
+                  setIsConnected(true);
                 } catch (error) {
                   console.error(error);
                 } finally {
@@ -98,8 +93,7 @@ export default function ConnectKK() {
             </Button>
           </Menu>
         </HStack>
-      )
-      }
-    </Box >
+      )}
+    </Box>
   );
 }

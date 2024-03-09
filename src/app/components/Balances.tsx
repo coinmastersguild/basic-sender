@@ -9,6 +9,7 @@ import { useToast } from "@chakra-ui/react";
 import { COIN_MAP_LONG } from '@pioneer-platform/pioneer-coins';
 import TransferModal from "./TransferModal";
 import { Accordion, AccordionItem, AccordionButton, AccordionPanel, AccordionIcon } from '@chakra-ui/react';
+import { usePrices } from "../contexts/PricesContext";
 
 interface Balance {
     symbol: string;
@@ -18,9 +19,6 @@ interface Balance {
     usdValue?: number | null;
     price?: number | null;
 }
-type CoinGeckoIdMap = {
-    [key: string]: string;
-};
 
 
 type SortOrder = {
@@ -38,17 +36,9 @@ const Balances: React.FC = () => {
     const [sendingWallet, setSendingWallet] = useState("");
     const [chain, setChain] = useState("");
     const [symbol, setSymbol] = useState("");
+    const { prices, fetchPrices } = usePrices();
 
-    const coinGeckoIdMap: CoinGeckoIdMap = {
-        BTC: 'bitcoin',
-        ETH: 'ethereum',
-        USDT: 'tether',
-        THOR: 'thorchain',
-        LTC: 'litecoin',
-        DOGE: 'dogecoin',
-        MAYA: 'cacao',
-        // Add more mappings as needed
-    };
+
     const chainColorMap = {
         BTC: 'orange.400', // Bitcoin
         ETH: 'blue.200', // Ethereum
@@ -59,23 +49,6 @@ const Balances: React.FC = () => {
         CACAO: 'brown.400', // Cacao
         MAYA: 'brown.400', // Cacao
         // Add more chains and their corresponding colors as needed
-    };
-
-
-    const fetchPrices = async (symbols: string[]) => {
-        // Translate symbols to CoinGecko IDs using the mapping
-        const ids = symbols.map(symbol => coinGeckoIdMap[symbol.toUpperCase()] || symbol.toLowerCase()).join(',');
-        console.log("ids: ", ids)
-        const url = `https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`;
-        console.log("url: ", url)
-        try {
-            const response = await fetch(url);
-            const data = await response.json();
-            return data;
-        } catch (error) {
-            console.error("Error fetching prices from CoinGecko:", error);
-            return {};
-        }
     };
 
 
@@ -98,31 +71,22 @@ const Balances: React.FC = () => {
                     });
                 });
 
-                const symbols = newBalances.map(balance => balance.symbol.toLowerCase());
-
-                const prices = await fetchPrices(symbols);
-                console.log('Prices from CoinGecko:', prices);
-
                 const updatedBalances = newBalances.map(balance => {
-                    const coinGeckoId = coinGeckoIdMap[balance.symbol.toUpperCase()] || balance.symbol.toLowerCase();
-                    const price = prices[coinGeckoId]?.usd;
-                    console.log(`Price for ${balance.symbol} (${coinGeckoId}):`, price);
-                    const usdValue = (price !== undefined) ? price * parseFloat(balance.value) : null;
-                    console.log('USD Value:', usdValue);
+                    const price = prices[balance.symbol.toUpperCase()] || 0; // Using global prices
+                    const usdValue = price * parseFloat(balance.value);
                     return {
                         ...balance,
-                        usdValue: usdValue,
+                        usdValue: isNaN(usdValue) ? null : usdValue, // Handle potential NaN values
                         price: price,
                     };
                 });
 
-                console.log('Updated balances:', updatedBalances);
                 setBalances(updatedBalances);
             };
 
             loadBalances();
         }
-    }, [keepkeyInstance]);
+    }, [keepkeyInstance, prices]);
 
     const totalUsdValue = balances.reduce((acc: number, balance: Balance) => {
         return acc + (balance.usdValue || 0);
@@ -298,6 +262,7 @@ const Balances: React.FC = () => {
                                                                     size="sm"
                                                                     bg={"transparent"}
                                                                     onClick={() => {
+                                                                        console.log(token)
                                                                         navigator.clipboard.writeText(token.address);
                                                                         showToast("Address copied to clipboard");
                                                                     }}
