@@ -95,6 +95,7 @@ export const KeepKeyWalletProvider = ({ children, selectedChains }: KeepKeyWalle
                 return undefined;
             });
             const paths = getPaths(allByCaip);
+            console.log("paths: ", paths);
             let keepkey: any = {};
             // @ts-ignore
             // Implement the addChain function with additional logging

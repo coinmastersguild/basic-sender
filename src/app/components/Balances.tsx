@@ -184,30 +184,29 @@ const Balances: React.FC = () => {
                         borderRadius={"20px"}
                         w={"800px"}
                     >
-                        <Accordion allowMultiple  >
+                        <Accordion allowMultiple>
                             {Object.entries(groupedBalances).map(([chain, tokens]) => (
                                 <AccordionItem key={chain}>
                                     <h1>
                                         <AccordionButton>
-                                            <Box flex="1" textAlign="left" color={"white"} >
-                                                <Flex justifyContent={"space-between"} >
+                                            <Box flex="1" textAlign="left" color={"white"}>
+                                                <Flex justifyContent={"space-between"}>
                                                     <Box>
-
                                                         <Avatar
                                                             key={chain}
                                                             size="xs"
-                                                            src={`https://pioneers.dev/coins/${COIN_MAP_LONG[chain]}.png`}
+                                                            src={`https://pioneers.dev/coins/${COIN_MAP_LONG[chain as keyof typeof COIN_MAP_LONG]}.png`}
                                                             mr={2}
                                                         />
                                                         {chain}
                                                     </Box>
-
                                                     <Badge
                                                         borderRadius={"10px"}
                                                         border={"2px solid black"}
                                                         bg={"white"}
                                                         color={"black"}
-                                                        fontSize={"26px"}>
+                                                        fontSize={"26px"}
+                                                    >
                                                         $
                                                         {tokens
                                                             .reduce(
@@ -219,27 +218,18 @@ const Balances: React.FC = () => {
                                                     </Badge>
                                                 </Flex>
                                             </Box>
-
                                             <AccordionIcon />
                                         </AccordionButton>
                                     </h1>
                                     <AccordionPanel pb={4}>
-                                        <Table variant="" >
+                                        <Table variant="">
                                             <Thead color={"white"}>
                                                 <Tr>
                                                     <Th>Symbol</Th>
-                                                    <Th>
-                                                        Amount
-                                                    </Th>
-                                                    <Th>
-                                                        USD Value
-                                                    </Th>
-                                                    <Th>
-                                                        Address
-                                                    </Th>
-                                                    <Th>
-
-                                                    </Th>
+                                                    <Th>Amount</Th>
+                                                    <Th>USD Value</Th>
+                                                    <Th>Address</Th>
+                                                    <Th></Th>
                                                 </Tr>
                                             </Thead>
                                             <Tbody color={"blue.200"}>
@@ -247,22 +237,16 @@ const Balances: React.FC = () => {
                                                     <Tr color={chainColorMap[chain as keyof typeof chainColorMap] || 'gray'} key={index}>
                                                         <Td>{token.symbol}</Td>
                                                         <Td>
-                                                            <Box w={"100px"}>
-                                                                {token.value}
-                                                            </Box>
+                                                            <Box w={"100px"}>{token.value}</Box>
                                                         </Td>
-                                                        <Td>
-                                                            $
-                                                            {token.usdValue ? token.usdValue.toFixed(2) : "0.00"}
-                                                        </Td>
-
+                                                        <Td>${token.usdValue ? token.usdValue.toFixed(2) : "0.00"}</Td>
                                                         <Td>
                                                             <Flex align="center">
                                                                 <Button
                                                                     size="sm"
                                                                     bg={"transparent"}
                                                                     onClick={() => {
-                                                                        console.log(token)
+                                                                        console.log(token);
                                                                         navigator.clipboard.writeText(token.address);
                                                                         showToast("Address copied to clipboard");
                                                                     }}
@@ -274,7 +258,7 @@ const Balances: React.FC = () => {
                                                                     value={token.address}
                                                                     isReadOnly
                                                                     borderRadius={"10px"}
-                                                                    size="120px"
+                                                                    size="sm"
                                                                     height={"30px"}
                                                                     w={"200px"}
                                                                     mr={2}
