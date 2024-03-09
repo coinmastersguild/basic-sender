@@ -40,7 +40,7 @@ interface KeepKeyWalletProviderProps {
 
 }
 
-const getWalletByChain = async (keepkey, chain) => {
+const getWalletByChain = async (keepkey:any, chain:any) => {
     if (!keepkey[chain]) return null;
 
     const walletMethods = keepkey[chain].walletMethods;
@@ -68,7 +68,7 @@ const getWalletByChain = async (keepkey, chain) => {
     } else {
         balance = await walletMethods.getBalance([{ address }]);
         // Assuming balance is an array of objects with balance and maybe other properties.
-        balance.forEach(bal => {
+        balance.forEach((bal: any) => {
             // This assumes bal is an object and has a property that can be converted to string as balance.
             // Adjust the property name as necessary.
             const balanceStr = bal.balance.toString();
