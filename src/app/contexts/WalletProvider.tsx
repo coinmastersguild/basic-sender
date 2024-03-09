@@ -40,7 +40,7 @@ interface KeepKeyWalletProviderProps {
 
 }
 
-const getWalletByChain = async (keepkey: any, chain: any) => {
+const getWalletByChain = async (keepkey, chain) => {
     if (!keepkey[chain]) return null;
 
     const walletMethods = keepkey[chain].walletMethods;
@@ -52,7 +52,13 @@ const getWalletByChain = async (keepkey: any, chain: any) => {
         const pubkeys = await walletMethods.getPubkeys();
         for (const pubkey of pubkeys) {
             const pubkeyBalance = await walletMethods.getBalance([{ pubkey }]);
-            balance.push(Number(pubkeyBalance[0].toFixed(pubkeyBalance[0].decimal)) || 0);
+            // Convert the balance to a number and handle null, undefined, or NaN cases.
+            const balanceNumber = Number(pubkeyBalance[0].toFixed(pubkeyBalance[0].decimal)) || 0;
+            balance.push(balanceNumber);
+
+            // Log the pubkey with middle ellipsis if it's too long
+            const ellipsedPubkey = pubkey.length > 10 ? `${pubkey.substring(0, 5)}...${pubkey.substring(pubkey.length - 5)}` : pubkey;
+            console.log(`**** Pubkey: ${ellipsedPubkey}, Balance: ${balanceNumber}`);
         }
         let assetValue = AssetValue.fromChainOrSignature(
             chain,
@@ -61,6 +67,13 @@ const getWalletByChain = async (keepkey: any, chain: any) => {
         balance = [assetValue];
     } else {
         balance = await walletMethods.getBalance([{ address }]);
+        // Assuming balance is an array of objects with balance and maybe other properties.
+        balance.forEach(bal => {
+            // This assumes bal is an object and has a property that can be converted to string as balance.
+            // Adjust the property name as necessary.
+            const balanceStr = bal.balance.toString();
+            console.log(`Address: ${address}, Balance: ${balanceStr}`);
+        });
     }
 
     return { address, balance };
@@ -96,6 +109,37 @@ export const KeepKeyWalletProvider = ({ children, selectedChains }: KeepKeyWalle
             });
             const paths = getPaths(allByCaip);
             console.log("paths: ", paths);
+
+            paths.push({
+                note:"Bitcoin account 1 Native Segwit (Bech32)",
+                blockchain: 'bitcoin',
+                symbol: 'BTC',
+                symbolSwapKit: 'BTC',
+                network: 'bip122:000000000019d6689c085ae165831e93',
+                script_type:"p2wpkh", //bech32
+                available_scripts_types:['p2pkh','p2sh','p2wpkh','p2sh-p2wpkh'],
+                type:"zpub",
+                addressNList: [0x80000000 + 84, 0x80000000 + 0, 0x80000000 + 1],
+                addressNListMaster: [0x80000000 + 84, 0x80000000 + 0, 0x80000000 + 1, 0, 0],
+                curve: 'secp256k1',
+                showDisplay: false // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+            })
+
+            paths.push({
+                note:"Bitcoin account 1 legacy",
+                blockchain: 'bitcoin',
+                symbol: 'BTC',
+                symbolSwapKit: 'BTC',
+                network: 'bip122:000000000019d6689c085ae165831e93',
+                script_type:"p2pkh",
+                available_scripts_types:['p2pkh','p2sh','p2wpkh','p2sh-p2wpkh'],
+                type:"xpub",
+                addressNList: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 1],
+                addressNListMaster: [0x80000000 + 44, 0x80000000 + 0, 0x80000000 + 1, 0, 0],
+                curve: 'secp256k1',
+                showDisplay: false // Not supported by TrezorConnect or Ledger, but KeepKey should do it
+            })
+
             let keepkey: any = {};
             // @ts-ignore
             // Implement the addChain function with additional logging

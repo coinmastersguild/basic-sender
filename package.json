@@ -1,6 +1,6 @@
 {
   "name": "keepkey-template-next",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -23,10 +23,10 @@
     "react-icons": "^5.0.1"
   },
   "devDependencies": {
-    "@coinmasters/core": "^9.0.8",
-    "@coinmasters/helpers": "^9.0.8",
-    "@coinmasters/toolbox-evm": "9.0.8",
-    "@coinmasters/wallet-keepkey": "11.0.8",
+    "@coinmasters/core": "^9.0.9",
+    "@coinmasters/helpers": "^9.0.9",
+    "@coinmasters/toolbox-evm": "9.0.9",
+    "@coinmasters/wallet-keepkey": "11.0.9",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
